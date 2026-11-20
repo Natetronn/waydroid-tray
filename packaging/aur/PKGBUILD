@@ -1,0 +1,19 @@
+# Maintainer: Nathan Doyle <582149+Natetronn@users.noreply.github.com>
+
+pkgname=waydroid-tray
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="KDE Plasma system tray launcher for Waydroid apps and sessions"
+arch=('any')
+url="https://github.com/Natetronn/waydroid-tray"
+license=('MIT')
+depends=('waydroid' 'python' 'pyside6' 'kstatusnotifieritem' 'knotifications')
+optdepends=('breeze-icons: monochrome tray icon that follows the panel colors')
+install=waydroid-tray.install
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('SKIP')  # replaced by updpkgsums once the v$pkgver tag is on GitHub
+
+package() {
+  cd "$pkgname-$pkgver"
+  make DESTDIR="$pkgdir" PREFIX=/usr install
+}

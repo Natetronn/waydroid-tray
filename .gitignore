@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+# Sandbox config for local test runs
+.dev-config/
+# makepkg output
+packaging/aur/*.tar.gz
+packaging/aur/*.pkg.tar.*
+packaging/aur/src/
+packaging/aur/pkg/

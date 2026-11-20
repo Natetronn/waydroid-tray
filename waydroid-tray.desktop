@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Waydroid Tray
+GenericName=Android Launcher
+Comment=System tray launcher for Waydroid apps and sessions
+Exec=waydroid-tray
+Icon=waydroid
+Terminal=false
+StartupNotify=false
+Categories=Utility;
+Keywords=waydroid;android;tray;launcher;
