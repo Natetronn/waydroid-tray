@@ -1,0 +1,134 @@
+{
+	"folders": [
+		{ "path": "." }
+	],
+	"settings": {
+		// System Python: it has PySide6 and the KDE bindings, and it is what the shebang uses.
+		"python.defaultInterpreterPath": "/usr/bin/python3",
+		"python.analysis.typeCheckingMode": "basic",
+		"[python]": {
+			"editor.defaultFormatter": "ms-python.black-formatter",
+			"editor.rulers": [100]
+		},
+		"black-formatter.args": ["--line-length=100"],
+		"[shellscript]": {
+			"editor.defaultFormatter": "foxundermoon.shell-format"
+		},
+		"files.associations": {
+			"PKGBUILD": "shellscript",
+			"*.install": "shellscript"
+		},
+		"files.exclude": {
+			"**/__pycache__": true
+		}
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-python.python",
+			"ms-python.vscode-pylance",
+			"ms-python.debugpy",
+			"ms-python.black-formatter",
+			"foxundermoon.shell-format"
+		]
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "Tray: debug (sandbox config)",
+				"type": "debugpy",
+				"request": "launch",
+				"program": "${workspaceFolder}/waydroid-tray.py",
+				"python": "/usr/bin/python3",
+				"console": "integratedTerminal",
+				// Settings (pins, icon style) live in .dev-config/, not ~/.config.
+				"env": { "XDG_CONFIG_HOME": "${workspaceFolder}/.dev-config" },
+				"preLaunchTask": "Dev: prepare sandbox"
+			},
+			{
+				"name": "Tray: debug (real config)",
+				"type": "debugpy",
+				"request": "launch",
+				"program": "${workspaceFolder}/waydroid-tray.py",
+				"python": "/usr/bin/python3",
+				"console": "integratedTerminal",
+				"preLaunchTask": "Tray: stop"
+			}
+		]
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Install (per user)",
+				"type": "shell",
+				"command": "./install.sh",
+				"problemMatcher": []
+			},
+			{
+				"label": "Uninstall (per user)",
+				"type": "shell",
+				"command": "./uninstall.sh",
+				"problemMatcher": []
+			},
+			{
+				"label": "Tray: restart",
+				"type": "shell",
+				// Through the autostart unit when there is one, else as a transient service,
+				// so output goes to the journal either way.
+				"command": "pkill -f '[b]in/waydroid-tray'; sleep 0.5; systemctl --user start 'app-waydroid\\x2dtray@autostart.service' 2>/dev/null || systemd-run --user --quiet --collect waydroid-tray",
+				"presentation": { "reveal": "silent" },
+				"problemMatcher": []
+			},
+			{
+				"label": "Tray: stop",
+				"type": "shell",
+				// The tray is single-instance, so a debug run needs the installed one stopped.
+				// [b] keeps pkill from matching this task's own shell.
+				"command": "pkill -f '[b]in/waydroid-tray'; true",
+				"presentation": { "reveal": "silent" },
+				"problemMatcher": []
+			},
+			{
+				"label": "Tray: follow logs",
+				"type": "shell",
+				"command": "journalctl --user -f -n 50 -t waydroid-tray",
+				"isBackground": true,
+				"problemMatcher": []
+			},
+			{
+				"label": "Dev: prepare sandbox",
+				"type": "shell",
+				"command": "pkill -f '[b]in/waydroid-tray'; mkdir -p .dev-config",
+				"presentation": { "reveal": "silent" },
+				"problemMatcher": []
+			},
+			{
+				"label": "Waydroid: status",
+				"type": "shell",
+				"command": "waydroid status",
+				"problemMatcher": []
+			},
+			{
+				"label": "Waydroid: stop session",
+				"type": "shell",
+				"command": "waydroid session stop",
+				"presentation": { "reveal": "silent" },
+				"problemMatcher": []
+			},
+			{
+				"label": "Waydroid: follow log",
+				"type": "shell",
+				"command": "tail -f -n 50 /var/lib/waydroid/waydroid.log",
+				"isBackground": true,
+				"problemMatcher": []
+			},
+			{
+				"label": "AUR: build package (test)",
+				"type": "shell",
+				"command": "cd packaging/aur && makepkg -f && makepkg --printsrcinfo | cmp -s - .SRCINFO && echo '.SRCINFO is up to date' || echo '.SRCINFO is stale: run makepkg --printsrcinfo > .SRCINFO'",
+				"problemMatcher": []
+			}
+		]
+	}
+}
